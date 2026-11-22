@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="sv">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>Elpriser SE4</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/ag-charts-community@14.3.0/dist/umd/ag-charts-community.min.js"></script>
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+  <main class="container">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">ELPRISER · SE4</p>
+        <h1>Elpriset just nu</h1>
+        <p class="subheading">Kvartspriser för idag och imorgon</p>
+      </div>
+      <button id="refreshButton" class="refresh-button" type="button">↻ Uppdatera</button>
+    </header>
+
+    <section class="settings card" aria-label="Prisinställningar">
+      <div class="setting">
+        <label for="markup">Elhandlarens påslag <span>(öre/kWh)</span></label>
+        <input id="markup" type="number" min="0" step="0.01" value="5">
+      </div>
+      <div class="setting">
+        <label for="gridFee">Nätöverföringsavgift <span>(öre/kWh)</span></label>
+        <input id="gridFee" type="number" min="0" step="0.01" value="25">
+      </div>
+      <div class="setting">
+        <label for="moms">Moms</label>
+        <input id="moms" type="checkbox">
+      </div>
+      <p class="settings-note">Inställningarna sparas automatiskt i den här webbläsaren.</p>
+    </section>
+
+    <section class="summary-grid" aria-live="polite">
+      <article class="metric card">
+        <span class="metric-label">Snitt idag</span>
+        <strong id="todayAverage">-</strong>
+        <small>öre/kWh inkl. angivna avgifter</small>
+      </article>
+      <article class="metric card">
+        <span class="metric-label">Snitt imorgon</span>
+        <strong id="tomorrowAverage">-</strong>
+        <small>öre/kWh inkl. angivna avgifter</small>
+      </article>
+      <article class="metric card">
+        <span class="metric-label">Lägsta pris</span>
+        <strong id="lowestPrice">-</strong>
+        <small id="lowestTime">-</small>
+      </article>
+    </section>
+
+    <section class="chart-card card">
+      <div class="chart-heading">
+        <div>
+          <h2>Pris per kvart</h2>
+          <p>Spotpris jämfört med pris inklusive dina avgifter</p>
+        </div>
+        <span id="status" class="status">Hämtar priser…</span>
+      </div>
+      <div id="chart" role="img" aria-label="Graf över elpriser idag och imorgon"></div>
+    </section>
+    <footer>Priser för elområde SE4 · Data sparas lokalt i din webbläsare</footer>
+  </main>
+</body>
+
+</html>
