@@ -24,15 +24,18 @@ function apiUrl(date) {
 }
 
 function readSettings() {
+  const defaultMarkup = 0;
+  const defaultGridFee = 78;
+  const defaultMoms = true;
   try {
     const saved = JSON.parse(localStorage.getItem("se4-settings") || "{}");
-    markupInput.value = saved.markup ?? 5;
-    gridFeeInput.value = saved.gridFee ?? 25;
-    momsInput.checked = saved.moms > 1.12
+    markupInput.value = saved.markup ?? defaultMarkup;
+    gridFeeInput.value = saved.gridFee ?? defaultGridFee;
+    momsInput.checked = saved.moms ?? defaultMoms;
   } catch {
-    markupInput.value = 5;
-    gridFeeInput.value = 25;
-    momsInput.checked = true;
+    markupInput.value = defaultMarkup;
+    gridFeeInput.value = defaultGridFee;
+    momsInput.checked = defaultMoms;
   }
 }
 
@@ -40,7 +43,7 @@ function saveSettings() {
   const settings = {
     markup: Math.max(0, Number(markupInput.value) || 0),
     gridFee: Math.max(0, Number(gridFeeInput.value) || 0),
-    moms: momsInput.checked ? 1.25 : 1.0
+    moms: momsInput.checked,
   };
   localStorage.setItem("se4-settings", JSON.stringify(settings));
   renderChart();
@@ -120,7 +123,8 @@ function updateSummary(todayRows, tomorrowRows) {
     document.getElementById("lowestTime").textContent = "Ingen prisdata";
     return;
   }
-  const lowest = all.reduce((min, row) => row.total < min.total ? row : min);
+  const now = new Date();
+  const lowest = all.filter(r => r.time > now).reduce((min, row) => row.total < min.total ? row : min);
   document.getElementById("lowestPrice").textContent = formatPrice(lowest.total);
   document.getElementById("lowestTime").textContent = lowest.time;
 }
