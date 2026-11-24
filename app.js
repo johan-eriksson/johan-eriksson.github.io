@@ -89,7 +89,7 @@ function formatPrice(value) {
   return `${value.toLocaleString("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 2 })} öre`;
 }
 
-function toChartRows(dayData, label) {
+function toChartRows(dayData) {
   return dayData.map(item => {
     const spotOre = Number(item.SEK_per_kWh) * 100;
     const markup = Math.max(0, Number(markupInput.value) || 0);
@@ -97,9 +97,9 @@ function toChartRows(dayData, label) {
     const moms = momsInput.checked ? 1.25 : 1;
     const time = new Date(item.time_start);
     return {
-      time: `${label} ${time.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}`,
+      time: time,
       spot: Number(spotOre.toFixed(3)),
-      total: Number((moms*(spotOre + markup) + gridFee).toFixed(3))
+      total: Number((moms * (spotOre + markup) + gridFee).toFixed(3))
     };
   }).filter(row => Number.isFinite(row.spot));
 }
@@ -133,7 +133,7 @@ function renderChart() {
   const rows = window.currentPriceRows || [];
   const data = rows.map(row => ({
     ...row,
-    total: Number((moms*(row.spot + markup) + gridFee).toFixed(3))
+    total: Number((moms * (row.spot + markup) + gridFee).toFixed(3))
   }));
 
   chart.updateDelta({
@@ -145,7 +145,7 @@ function createChart(data) {
   const options = {
     container: chartContainer,
     data,
-    background: { fill: "#5f0554" },
+    theme: 'ag-default-dark',
     padding: { top: 18, right: 18, bottom: 12, left: 12 },
     legend: { enabled: true, position: "bottom" },
     series: [
@@ -153,7 +153,17 @@ function createChart(data) {
       { type: "line", xKey: "time", yKey: "total", yName: "Inkl. dina avgifter", marker: { enabled: false }, strokeWidth: 3 }
     ],
     axes: {
-      x: { type: "category", title: { text: "Tid" }, label: { rotation: 0, avoidCollisions: true } },
+      x: {
+        type: "time",
+        crossLines: [
+          {
+            type: 'line',
+            value: new Date(),
+          }
+        ],
+        title: { text: "Tid" },
+        label: { rotation: 0, avoidCollisions: true }
+      },
       y: {
         type: "number",
         title: { text: "Öre/kWh" },
@@ -178,8 +188,8 @@ async function loadPrices(force = false) {
       fetchDay(tomorrow, force)
     ]);
 
-    const todayRows = toChartRows(todayResult.data, "Idag");
-    const tomorrowRows = toChartRows(tomorrowResult.data, "Imorgon");
+    const todayRows = toChartRows(todayResult.data);
+    const tomorrowRows = toChartRows(tomorrowResult.data);
     const allRows = [...todayRows, ...tomorrowRows];
     window.currentPriceRows = allRows;
 
